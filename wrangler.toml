@@ -1,0 +1,33 @@
+name = "github-feishu-bot"
+main = "src/index.js"
+compatibility_date = "2024-01-15"
+
+# Account and deployment settings
+# account_id = "your-cloudflare-account-id"
+# workers_dev = true
+
+# Environment variables
+[vars]
+CONFIG_SOURCE = "file"
+CONFIG_PATH = "./config/repositories.json"
+LOG_LEVEL = "info"
+
+# KV namespace bindings (uncomment if using KV storage)
+# [[kv_namespaces]]
+# binding = "CONFIG_KV"
+# id = "your-kv-namespace-id"
+
+# Secrets (set via: wrangler secret put <KEY>)
+# - GITHUB_WEBHOOK_SECRET
+
+# Build configuration
+[build]
+command = ""
+
+# Development settings
+[env.development]
+vars = { LOG_LEVEL = "debug" }
+
+# Production settings
+[env.production]
+vars = { LOG_LEVEL = "info" }

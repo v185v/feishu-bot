@@ -1,0 +1,33 @@
+{
+  "name": "github-feishu-bot",
+  "version": "1.0.0",
+  "description": "Cloudflare Workers bot that monitors GitHub repository events and sends notifications to Feishu",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:production": "wrangler deploy --env production",
+    "tail": "wrangler tail",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest --coverage"
+  },
+  "keywords": [
+    "github",
+    "feishu",
+    "lark",
+    "webhook",
+    "cloudflare-workers",
+    "bot",
+    "notifications"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
