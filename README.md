@@ -27,8 +27,8 @@ A Cloudflare Workers-based bot that monitors GitHub repository events and sends 
 
 1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd github-feishu-bot
+git clone https://github.com/v185v/feishu-bot.git
+cd feishu-bot
 ```
 
 2. Install dependencies:

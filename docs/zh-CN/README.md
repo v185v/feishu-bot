@@ -27,8 +27,8 @@
 
 1. 克隆仓库：
 ```bash
-git clone <your-repo-url>
-cd github-feishu-bot
+git clone https://github.com/v185v/feishu-bot.git
+cd feishu-bot
 ```
 
 2. 安装依赖：
