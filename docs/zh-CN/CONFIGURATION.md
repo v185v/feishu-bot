@@ -50,7 +50,7 @@
     {
       "owner": "your-org",
       "repo": "your-repo",
-      "events": ["pull_request"],
+      "events": ["pull_request", "star"],
       "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/your-token",
       "secret": "your-github-webhook-secret",
       "mentions": ["ou_xxx", "oc_xxx"],
@@ -58,7 +58,8 @@
         "notify_on_pr_open": true,
         "notify_on_pr_merge": true,
         "notify_on_pr_close": false,
-        "notify_on_pr_review": true
+        "notify_on_pr_review": true,
+        "notify_on_star": true
       }
     }
   ],
@@ -104,6 +105,12 @@
 | `notify_on_pr_close` | boolean | PR 关闭时通知（未合并） | `false` |
 | `notify_on_pr_review` | boolean | 请求审查时通知 | `true` |
 
+#### Star 设置
+
+| 字段 | 类型 | 描述 | 默认值 |
+|-------|------|-------------|---------|
+| `notify_on_star` | boolean | 仓库被 star 时通知 | `true` |
+
 ## 全局设置
 
 `global_settings` 对象配置系统范围的行为：
@@ -119,10 +126,10 @@
 `events` 数组当前支持的值：
 
 - `pull_request`：Pull request 生命周期事件（打开、合并、关闭、审查）
+- `star`：仓库 star 事件（仅在被 star 时通知，unstar 不通知）
 
 计划支持：
 - `issues`：Issue 生命周期事件
-- `star`：仓库 star 事件
 - `release`：发布事件
 - `push`：推送事件
 

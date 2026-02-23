@@ -143,10 +143,10 @@ wrangler secret put GITHUB_WEBHOOK_SECRET
 
 当前支持的 GitHub 事件：
 - **Pull Requests**：打开、合并、关闭、重新打开、请求审查
+- **Stars**：仓库被 star
 
 计划支持的事件：
 - Issues
-- Stars
 - Releases
 - Commits
 

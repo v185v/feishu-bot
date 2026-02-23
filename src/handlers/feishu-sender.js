@@ -264,6 +264,10 @@ const ACTION_DISPLAY_TEXT = {
   closed: '❌ Closed',
   reopened: '🔄 Reopened',
   review_requested: '👀 Review Requested',
+  starred: '⭐ Starred',
+  unstarred: '💔 Unstarred',
+  assigned: '👤 Assigned',
+  labeled: '🏷️ Labeled',
 };
 
 /**
@@ -275,6 +279,10 @@ const ACTION_HEADER_COLORS = {
   closed: 'red',
   reopened: 'orange',
   review_requested: 'purple',
+  starred: 'yellow',
+  unstarred: 'grey',
+  assigned: 'turquoise',
+  labeled: 'wathet',
 };
 
 /**
@@ -406,15 +414,65 @@ function buildDetailsContent(actor, timestamp, metadata = {}) {
     lines.push(`**PR:** #${metadata.prNumber}`);
   }
 
+  // Add issue number if present
+  if (metadata.issueNumber) {
+    lines.push(`**Issue:** #${metadata.issueNumber}`);
+  }
+
   // Add reviewers if present
   if (metadata.reviewers && metadata.reviewers.length > 0) {
     const reviewerList = metadata.reviewers.map(r => `@${r}`).join(', ');
     lines.push(`**Reviewers:** ${reviewerList}`);
   }
 
+  // Add assignees if present
+  if (metadata.assignees && metadata.assignees.length > 0) {
+    const assigneeList = metadata.assignees.map(a => `@${a}`).join(', ');
+    lines.push(`**Assignees:** ${assigneeList}`);
+  }
+
+  // Add assigned to if present
+  if (metadata.assignedTo) {
+    lines.push(`**Assigned To:** @${metadata.assignedTo}`);
+  }
+
+  // Add labels if present
+  if (metadata.labels && metadata.labels.length > 0) {
+    const labelList = metadata.labels.map(l => `\`${l}\``).join(', ');
+    lines.push(`**Labels:** ${labelList}`);
+  }
+
+  // Add added label if present
+  if (metadata.addedLabel) {
+    lines.push(`**Added Label:** \`${metadata.addedLabel}\``);
+  }
+
+  // Add comments count if present
+  if (metadata.comments !== undefined) {
+    lines.push(`**💬 Comments:** ${metadata.comments}`);
+  }
+
   // Add draft status if applicable
   if (metadata.draft) {
     lines.push(`**Status:** Draft`);
+  }
+
+  // Add issue state if present
+  if (metadata.state) {
+    lines.push(`**State:** ${metadata.state}`);
+  }
+
+  // Add star statistics if present
+  if (metadata.stargazers_count !== undefined) {
+    lines.push(`**⭐ Stars:** ${metadata.stargazers_count}`);
+  }
+
+  if (metadata.watchers_count !== undefined) {
+    lines.push(`**👀 Watchers:** ${metadata.watchers_count}`);
+  }
+
+  if (metadata.forks_count !== undefined) {
+    lines.push(`**🍴 Forks:** ${metadata.forks_count}`);
   }
 
   return lines.join('\n');

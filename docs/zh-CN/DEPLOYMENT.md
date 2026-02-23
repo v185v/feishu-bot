@@ -61,7 +61,7 @@ wrangler login
     {
       "owner": "your-org",
       "repo": "your-repo",
-      "events": ["pull_request"],
+      "events": ["pull_request", "star"],
       "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/...",
       "secret": "your-github-webhook-secret",
       "mentions": [],
@@ -69,7 +69,8 @@ wrangler login
         "notify_on_pr_open": true,
         "notify_on_pr_merge": true,
         "notify_on_pr_close": false,
-        "notify_on_pr_review": true
+        "notify_on_pr_review": true,
+        "notify_on_star": true
       }
     }
   ],
@@ -206,8 +207,8 @@ https://github-feishu-bot.your-subdomain.workers.dev
    - **SSL verification**：启用 SSL 验证
    - **Events**：选择要监控的事件：
      - ☑️ Pull requests
+     - ☑️ Watch（用于 star 事件）
      - ☐ Issues（未来支持）
-     - ☐ Stars（未来支持）
    - **Active**：☑️ 勾选
 
 4. 点击 **Add webhook**

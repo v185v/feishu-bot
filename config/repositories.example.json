@@ -1,0 +1,24 @@
+{
+  "repositories": [
+    {
+      "owner": "your-org",
+      "repo": "your-repo",
+      "events": ["pull_request", "star"],
+      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token",
+      "secret": "your-github-webhook-secret",
+      "mentions": [],
+      "settings": {
+        "notify_on_pr_open": true,
+        "notify_on_pr_merge": true,
+        "notify_on_pr_close": false,
+        "notify_on_pr_review": true,
+        "notify_on_star": true
+      }
+    }
+  ],
+  "global_settings": {
+    "log_level": "info",
+    "retry_attempts": 3,
+    "timeout_ms": 5000
+  }
+}

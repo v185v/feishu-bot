@@ -14,10 +14,14 @@ import {
 } from './utils/errors.js';
 import { handleGitHubWebhook, registerEventHandler } from './handlers/github-webhook.js';
 import { handlePullRequestEvent } from './handlers/events/pull-request.js';
+import { handleStarEvent } from './handlers/events/star.js';
+import { handleIssuesEvent } from './handlers/events/issues.js';
 import { sendToFeishu } from './handlers/feishu-sender.js';
 
 // Register event handlers
 registerEventHandler('pull_request', handlePullRequestEventWithFeishu);
+registerEventHandler('star', handleStarEventWithFeishu);
+registerEventHandler('issues', handleIssuesEventWithFeishu);
 
 /**
  * Wrapper for pull request handler that sends to Feishu
@@ -42,6 +46,72 @@ async function handlePullRequestEventWithFeishu(event, config, logger) {
       logError(logger, error, {
         repository: `${config.owner}/${config.repo}`,
         eventType: 'pull_request',
+        action: result.message?.action,
+        phase: 'feishu_notification',
+      });
+      throw error;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Wrapper for star handler that sends to Feishu
+ * @param {object} event - GitHub webhook event
+ * @param {object} config - Repository configuration
+ * @param {Logger} logger - Logger instance
+ * @returns {Promise<object>} Handler result
+ */
+async function handleStarEventWithFeishu(event, config, logger) {
+  const result = await handleStarEvent(event, config, logger);
+
+  if (result.shouldNotify && result.message) {
+    try {
+      await sendToFeishu(config.feishu_webhook, result.message, {
+        retryAttempts: config.global_settings?.retry_attempts ?? 3,
+        timeoutMs: config.global_settings?.timeout_ms ?? 5000,
+        logger,
+      });
+      logger.info('Feishu notification sent successfully');
+    } catch (error) {
+      // Log with full context for Feishu API failures
+      logError(logger, error, {
+        repository: `${config.owner}/${config.repo}`,
+        eventType: 'star',
+        action: result.message?.action,
+        phase: 'feishu_notification',
+      });
+      throw error;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Wrapper for issues handler that sends to Feishu
+ * @param {object} event - GitHub webhook event
+ * @param {object} config - Repository configuration
+ * @param {Logger} logger - Logger instance
+ * @returns {Promise<object>} Handler result
+ */
+async function handleIssuesEventWithFeishu(event, config, logger) {
+  const result = await handleIssuesEvent(event, config, logger);
+
+  if (result.shouldNotify && result.message) {
+    try {
+      await sendToFeishu(config.feishu_webhook, result.message, {
+        retryAttempts: config.global_settings?.retry_attempts ?? 3,
+        timeoutMs: config.global_settings?.timeout_ms ?? 5000,
+        logger,
+      });
+      logger.info('Feishu notification sent successfully');
+    } catch (error) {
+      // Log with full context for Feishu API failures
+      logError(logger, error, {
+        repository: `${config.owner}/${config.repo}`,
+        eventType: 'issues',
         action: result.message?.action,
         phase: 'feishu_notification',
       });
@@ -240,4 +310,6 @@ export {
   handleNotFound,
   jsonResponse,
   handlePullRequestEventWithFeishu,
+  handleStarEventWithFeishu,
+  handleIssuesEventWithFeishu,
 };
