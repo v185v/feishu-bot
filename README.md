@@ -143,10 +143,10 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for system architecture overview.
 
 Currently supported GitHub events:
 - **Pull Requests**: open, merge, close, reopen, review requested
-
-Future event support planned:
 - Issues
 - Stars
+
+Future event support planned:
 - Releases
 - Commits
 
