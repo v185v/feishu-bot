@@ -9,6 +9,19 @@ describe('ConfigManager', () => {
   });
 
   describe('Configuration Loading', () => {
+    it('should load valid configuration from bundled file when CONFIG_SOURCE=file', async () => {
+      const env = {
+        CONFIG_SOURCE: 'file',
+        CONFIG_PATH: './config/repositories.json',
+      };
+
+      const config = await configManager.loadConfig(env);
+
+      expect(config).toBeDefined();
+      expect(Array.isArray(config.repositories)).toBe(true);
+      expect(config.repositories.length).toBeGreaterThan(0);
+    });
+
     it('should load valid configuration from environment', async () => {
       const validConfig = {
         repositories: [

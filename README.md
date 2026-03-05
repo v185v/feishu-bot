@@ -150,6 +150,42 @@ Future event support planned:
 - Releases
 - Commits
 
+## Eaxmple repositories
+```
+{
+  "repositories": [
+    {
+      "owner": "v185v",
+      "repo": "feishu-bot",
+      "events": ["pull_request", "issues", "star"],
+      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/你的hook",
+      "secret": "你的github-webhook-secret-自己爱填啥填啥",
+      "mentions": ["ou_xxx", "ou_yyy"],
+      "settings": {
+        "notify_on_pr_open": true,
+        "notify_on_pr_merge": true,
+        "notify_on_pr_close": false,
+        "notify_on_pr_review": true,
+
+        "notify_on_star": true,
+
+        "notify_on_issue_open": true,
+        "notify_on_issue_close": true,
+        "notify_on_issue_reopen": true,
+        "notify_on_issue_assign": false,
+        "notify_on_issue_label": false
+      }
+    }
+  ],
+  "global_settings": {
+    "log_level": "info",
+    "retry_attempts": 3,
+    "timeout_ms": 5000
+  }
+}
+
+```
+
 ## Troubleshooting
 
 ### Webhook not receiving events

@@ -582,8 +582,6 @@ export {
   escapeMarkdown,
   ACTION_DISPLAY_TEXT,
   ACTION_HEADER_COLORS,
-  calculateBackoffDelay,
-  maskWebhookUrl,
 };
 
 // Re-export FeishuApiError for backward compatibility

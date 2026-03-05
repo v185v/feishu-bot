@@ -1,5 +1,6 @@
 import { LOG_LEVELS } from './constants.js';
 import { ConfigurationError } from './utils/errors.js';
+import defaultFileConfig from '../config/repositories.json';
 
 /**
  * Default global settings
@@ -19,6 +20,14 @@ const REQUIRED_REPO_FIELDS = ['owner', 'repo', 'events', 'feishu_webhook', 'secr
  * Valid event types
  */
 const VALID_EVENT_TYPES = ['pull_request', 'issues', 'star', 'push', 'release'];
+
+/**
+ * Supported bundled file configurations
+ */
+const FILE_CONFIGS = {
+  './config/repositories.json': defaultFileConfig,
+  'config/repositories.json': defaultFileConfig,
+};
 
 /**
  * Configuration Manager class
@@ -42,12 +51,18 @@ export class ConfigManager {
     if (configOverride) {
       rawConfig = configOverride;
     } else {
-      const configSource = env.CONFIG_SOURCE || 'file';
+      const configSource = (env.CONFIG_SOURCE || 'env').toLowerCase();
 
       if (configSource === 'kv') {
         rawConfig = await this._loadFromKV(env);
-      } else {
+      } else if (configSource === 'file') {
+        rawConfig = await this._loadFromFile(env);
+      } else if (configSource === 'env') {
         rawConfig = await this._loadFromEnv(env);
+      } else {
+        throw new ConfigurationError(
+          `Invalid CONFIG_SOURCE: "${configSource}". Valid values: env, file, kv`
+        );
       }
     }
 
@@ -83,6 +98,25 @@ export class ConfigManager {
     }
 
     return configData;
+  }
+
+  /**
+   * Load configuration from bundled JSON file
+   * @private
+   */
+  async _loadFromFile(env) {
+    const rawPath = env.CONFIG_PATH || './config/repositories.json';
+    const normalizedPath = String(rawPath).replace(/\\/g, '/');
+    const configData = FILE_CONFIGS[normalizedPath];
+
+    if (!configData) {
+      throw new ConfigurationError(
+        `Unsupported CONFIG_PATH: "${rawPath}". Supported paths: ${Object.keys(FILE_CONFIGS).join(', ')}`
+      );
+    }
+
+    // Return a deep copy to avoid mutating imported module state
+    return JSON.parse(JSON.stringify(configData));
   }
 
   /**
