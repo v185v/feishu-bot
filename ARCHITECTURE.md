@@ -38,8 +38,8 @@ The GitHub Feishu Bot is a serverless application built on Cloudflare Workers th
 │  ┌────────────────────────────────────────────────┐    │
 │  │ Event Handler Dispatcher                       │    │
 │  │  • Pull Request Handler                        │    │
-│  │  • Issues Handler (future)                     │    │
-│  │  • Star Handler (future)                       │    │
+│  │  • Issues Handler                              │    │
+│  │  • Star Handler                                │    │
 │  └──────────────┬─────────────────────────────────┘    │
 │                 │                                        │
 │                 ▼                                        │
@@ -152,6 +152,8 @@ Compare Signatures (constant-time)
 
 **Current Handlers**:
 - `pull-request.js`: Pull request lifecycle events
+- `issues.js`: Issue lifecycle events
+- `star.js`: Star events
 
 **Handler Interface**:
 ```javascript
@@ -345,8 +347,8 @@ export async function handlePullRequest(event, config, logger) {
 // handlers/github-webhook.js
 const handlers = {
   pull_request: handlePullRequest,
-  issues: handleIssues,  // Future
-  star: handleStar       // Future
+  issues: handleIssues,
+  star: handleStar
 };
 ```
 
@@ -590,9 +592,8 @@ Cloudflare Workers (Global Edge)
 ### Planned Features
 
 1. **Additional Event Types**
-   - Issues
-   - Stars
    - Releases
+   - Push
    - Commits
 
 2. **Advanced Filtering**

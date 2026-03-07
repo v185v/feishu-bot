@@ -107,9 +107,9 @@ wrangler login
 npm run deploy
 ```
 
-3. Set up secrets:
+3. If you use env-based configuration (`CONFIG_SOURCE=env`), set repository config as a secret:
 ```bash
-wrangler secret put GITHUB_WEBHOOK_SECRET
+wrangler secret put REPOSITORIES_CONFIG
 ```
 
 4. Configure GitHub webhook:
@@ -197,7 +197,7 @@ Future event support planned:
 ### Signature verification failing
 
 1. Ensure the webhook secret matches in both GitHub and your configuration
-2. Check that the secret is properly set in Cloudflare Workers
+2. Check that the repository `secret` field is loaded from your active config source
 
 ### Messages not appearing in Feishu
 
@@ -207,9 +207,10 @@ Future event support planned:
 
 ### Configuration not loading
 
-1. Verify `CONFIG_SOURCE` is set correctly (`file` or `kv`)
-2. Check that `CONFIG_PATH` points to a valid JSON file
-3. Validate JSON syntax in configuration file
+1. Verify `CONFIG_SOURCE` is set correctly (`file`, `env`, or `kv`)
+2. If `file`, check that `CONFIG_PATH` points to a valid JSON file
+3. If `env`, verify `REPOSITORIES_CONFIG` is set and is valid JSON
+4. If `kv`, verify KV binding `CONFIG_KV` exists and key `config` (or `CONFIG_KV_KEY`) contains valid JSON
 
 ## Contributing
 

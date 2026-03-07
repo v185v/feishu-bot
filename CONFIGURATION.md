@@ -4,10 +4,11 @@ This document provides detailed information about configuring the GitHub Feishu 
 
 ## Configuration Sources
 
-The bot supports two configuration sources:
+The bot supports three configuration sources:
 
 1. **File-based**: Configuration stored in a JSON file (default)
-2. **KV-based**: Configuration stored in Cloudflare KV storage
+2. **Env-based**: Configuration stored in `REPOSITORIES_CONFIG` (JSON string)
+3. **KV-based**: Configuration stored in Cloudflare KV storage
 
 Set the configuration source using the `CONFIG_SOURCE` environment variable.
 
@@ -17,7 +18,7 @@ Set the configuration source using the `CONFIG_SOURCE` environment variable.
 
 | Variable | Description | Default | Example |
 |----------|-------------|---------|---------|
-| `CONFIG_SOURCE` | Configuration source type | `file` | `file` or `kv` |
+| `CONFIG_SOURCE` | Configuration source type | `file` | `file`, `env`, or `kv` |
 
 ### File-based Configuration
 
@@ -25,17 +26,32 @@ Set the configuration source using the `CONFIG_SOURCE` environment variable.
 |----------|-------------|---------|---------|
 | `CONFIG_PATH` | Path to configuration JSON file | `./config/repositories.json` | `./config/repositories.json` |
 
-### KV-based Configuration
+### Env-based Configuration
 
 | Variable | Description | Default | Example |
 |----------|-------------|---------|---------|
-| `CONFIG_KV_NAMESPACE` | KV namespace binding name | - | `github_bot_config` |
+| `REPOSITORIES_CONFIG` | Repository configuration JSON string | - | `{"repositories":[...]}` |
+
+### KV-based Configuration
+
+Use a KV binding named `CONFIG_KV` in `wrangler.toml`:
+
+```toml
+[[kv_namespaces]]
+binding = "CONFIG_KV"
+id = "your-kv-namespace-id"
+```
+
+Optional KV variable:
+
+| Variable | Description | Default | Example |
+|----------|-------------|---------|---------|
+| `CONFIG_KV_KEY` | KV key for the configuration JSON | `config` | `config` |
 
 ### Optional Variables
 
 | Variable | Description | Default | Example |
 |----------|-------------|---------|---------|
-| `GITHUB_WEBHOOK_SECRET` | Default webhook secret for all repositories | - | `your-secret-here` |
 | `LOG_LEVEL` | Logging level | `info` | `debug`, `info`, `warn`, `error` |
 | `RETRY_ATTEMPTS` | Number of retry attempts for Feishu API | `3` | `3` |
 | `TIMEOUT_MS` | Timeout for Feishu API calls (ms) | `5000` | `5000` |
@@ -116,15 +132,16 @@ The `global_settings` object configures system-wide behavior:
 
 ## Supported Event Types
 
-Currently supported values for the `events` array:
+Implemented event types:
 
-- `pull_request`: Pull request lifecycle events (open, merge, close, review)
-
-Future support planned:
+- `pull_request`: Pull request lifecycle events (open, merge, close, reopen, review requested)
 - `issues`: Issue lifecycle events
 - `star`: Repository star events
-- `release`: Release events
-- `push`: Push events
+
+Recognized by config validation but not implemented with handlers yet:
+
+- `release`
+- `push`
 
 ## Getting Feishu Webhook URL
 
@@ -255,7 +272,8 @@ wrangler kv:key put --namespace-id=your-kv-namespace-id "config" "$(cat config/r
 4. Set environment variable:
 ```bash
 CONFIG_SOURCE=kv
-CONFIG_KV_NAMESPACE=CONFIG_KV
+# Optional: override key name (default is "config")
+# CONFIG_KV_KEY=config
 ```
 
 ## Security Best Practices
@@ -288,10 +306,11 @@ wrangler kv:key put --namespace-id=your-kv-namespace-id "config" "$(cat config/r
 
 ### Configuration not loading
 
-1. Check `CONFIG_SOURCE` is set correctly
-2. Verify file path or KV namespace binding
-3. Validate JSON syntax: `cat config/repositories.json | jq`
-4. Check Worker logs: `wrangler tail`
+1. Check `CONFIG_SOURCE` is set correctly (`file`, `env`, or `kv`)
+2. For `file`, verify `CONFIG_PATH` points to a valid JSON file
+3. For `env`, verify `REPOSITORIES_CONFIG` is set and valid JSON
+4. For `kv`, verify `CONFIG_KV` binding exists and key `config` (or `CONFIG_KV_KEY`) contains valid JSON
+5. Check Worker logs: `wrangler tail`
 
 ### Webhook signature verification failing
 

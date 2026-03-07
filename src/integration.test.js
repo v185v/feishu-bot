@@ -39,6 +39,7 @@ describe('Integration Tests - End-to-End Webhook Processing', () => {
     };
 
     mockEnv = {
+      CONFIG_SOURCE: 'env',
       REPOSITORIES_CONFIG: JSON.stringify(validConfig),
     };
 

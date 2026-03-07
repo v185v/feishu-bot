@@ -51,7 +51,7 @@ export class ConfigManager {
     if (configOverride) {
       rawConfig = configOverride;
     } else {
-      const configSource = (env.CONFIG_SOURCE || 'env').toLowerCase();
+      const configSource = (env.CONFIG_SOURCE || 'file').toLowerCase();
 
       if (configSource === 'kv') {
         rawConfig = await this._loadFromKV(env);
@@ -85,19 +85,31 @@ export class ConfigManager {
    * @private
    */
   async _loadFromKV(env) {
-    const kvNamespace = env.CONFIG_KV_NAMESPACE;
-    if (!kvNamespace) {
-      throw new ConfigurationError('CONFIG_KV_NAMESPACE binding not found');
+    // Prefer CONFIG_KV binding, keep CONFIG_KV_NAMESPACE for backward compatibility.
+    const kvNamespace = env.CONFIG_KV || env.CONFIG_KV_NAMESPACE;
+    if (!kvNamespace || typeof kvNamespace.get !== 'function') {
+      throw new ConfigurationError(
+        'KV binding not found. Bind a KV namespace as "CONFIG_KV" (legacy: CONFIG_KV_NAMESPACE).'
+      );
     }
 
-    const configKey = env.CONFIG_KV_KEY || 'github_bot_config';
-    const configData = await kvNamespace.get(configKey, 'json');
+    const explicitKey = env.CONFIG_KV_KEY;
+    const configKeys = explicitKey ? [explicitKey] : ['config', 'github_bot_config'];
 
-    if (!configData) {
-      throw new ConfigurationError(`Configuration not found in KV at key: ${configKey}`);
+    for (const configKey of configKeys) {
+      const configData = await kvNamespace.get(configKey, 'json');
+      if (configData) {
+        return configData;
+      }
     }
 
-    return configData;
+    if (explicitKey) {
+      throw new ConfigurationError(`Configuration not found in KV at key: ${explicitKey}`);
+    }
+
+    throw new ConfigurationError(
+      `Configuration not found in KV. Tried keys: ${configKeys.join(', ')}`
+    );
   }
 
   /**

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ConfigManager, ConfigurationError } from './config.js';
 
 describe('ConfigManager', () => {
@@ -36,6 +36,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(validConfig),
       };
 
@@ -44,6 +45,83 @@ describe('ConfigManager', () => {
       expect(config).toBeDefined();
       expect(config.repositories).toHaveLength(1);
       expect(config.repositories[0].owner).toBe('test-owner');
+    });
+
+    it('should default to bundled file configuration when CONFIG_SOURCE is not set', async () => {
+      const env = {};
+
+      const config = await configManager.loadConfig(env);
+
+      expect(config).toBeDefined();
+      expect(Array.isArray(config.repositories)).toBe(true);
+      expect(config.repositories.length).toBeGreaterThan(0);
+    });
+
+    it('should load configuration from CONFIG_KV binding with default key', async () => {
+      const kvConfig = {
+        repositories: [
+          {
+            owner: 'kv-owner',
+            repo: 'kv-repo',
+            events: ['pull_request'],
+            feishu_webhook: 'https://open.feishu.cn/webhook/kv',
+            secret: 'kv-secret',
+          },
+        ],
+      };
+
+      const kvGet = vi.fn(async (key, type) => {
+        if (key === 'config' && type === 'json') {
+          return kvConfig;
+        }
+        return null;
+      });
+
+      const env = {
+        CONFIG_SOURCE: 'kv',
+        CONFIG_KV: {
+          get: kvGet,
+        },
+      };
+
+      const config = await configManager.loadConfig(env);
+
+      expect(config.repositories[0].owner).toBe('kv-owner');
+      expect(kvGet).toHaveBeenCalledWith('config', 'json');
+    });
+
+    it('should load configuration from legacy CONFIG_KV_NAMESPACE with custom key', async () => {
+      const kvConfig = {
+        repositories: [
+          {
+            owner: 'legacy-owner',
+            repo: 'legacy-repo',
+            events: ['pull_request'],
+            feishu_webhook: 'https://open.feishu.cn/webhook/legacy',
+            secret: 'legacy-secret',
+          },
+        ],
+      };
+
+      const kvGet = vi.fn(async (key, type) => {
+        if (key === 'custom_key' && type === 'json') {
+          return kvConfig;
+        }
+        return null;
+      });
+
+      const env = {
+        CONFIG_SOURCE: 'kv',
+        CONFIG_KV_NAMESPACE: {
+          get: kvGet,
+        },
+        CONFIG_KV_KEY: 'custom_key',
+      };
+
+      const config = await configManager.loadConfig(env);
+
+      expect(config.repositories[0].owner).toBe('legacy-owner');
+      expect(kvGet).toHaveBeenCalledWith('custom_key', 'json');
     });
 
     it('should apply environment variable overrides', async () => {
@@ -64,6 +142,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(validConfig),
         LOG_LEVEL: 'debug',
         RETRY_ATTEMPTS: '5',
@@ -77,14 +156,17 @@ describe('ConfigManager', () => {
       expect(config.global_settings.timeout_ms).toBe(10000);
     });
 
-    it('should throw error when configuration is missing', async () => {
-      const env = {};
+    it('should throw error when env-based configuration is missing', async () => {
+      const env = {
+        CONFIG_SOURCE: 'env',
+      };
 
       await expect(configManager.loadConfig(env)).rejects.toThrow(ConfigurationError);
     });
 
     it('should throw error for malformed JSON', async () => {
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: 'invalid json {',
       };
 
@@ -99,6 +181,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
       };
 
@@ -113,6 +196,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
       };
 
@@ -132,6 +216,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
       };
 
@@ -154,6 +239,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
       };
 
@@ -176,6 +262,7 @@ describe('ConfigManager', () => {
       };
 
       const env = {
+        CONFIG_SOURCE: 'env',
         REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
       };
 

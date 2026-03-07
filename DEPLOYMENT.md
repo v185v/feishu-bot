@@ -99,11 +99,7 @@ CONFIG_PATH = "./config/repositories.json"
 npm run deploy
 ```
 
-3. Set secrets:
-```bash
-wrangler secret put GITHUB_WEBHOOK_SECRET
-# Enter your default webhook secret when prompted
-```
+3. No additional Worker secrets are required in file mode.
 
 **Pros**: Simple setup, no additional services needed
 **Cons**: Requires redeployment for configuration changes
@@ -139,10 +135,7 @@ wrangler kv:key put --namespace-id=your-kv-namespace-id "config" "$(cat config/r
 npm run deploy
 ```
 
-5. Set secrets:
-```bash
-wrangler secret put GITHUB_WEBHOOK_SECRET
-```
+5. No additional Worker secrets are required in KV mode.
 
 **Pros**: Update configuration without redeployment
 **Cons**: Slightly more complex setup
@@ -206,8 +199,8 @@ https://github-feishu-bot.your-subdomain.workers.dev
    - **SSL verification**: Enable SSL verification
    - **Events**: Select events to monitor:
      - ☑️ Pull requests
-     - ☐ Issues (future support)
-     - ☐ Stars (future support)
+     - ☑️ Issues
+     - ☑️ Stars (GitHub UI label: Watch)
    - **Active**: ☑️ Checked
 
 4. Click **Add webhook**
@@ -224,14 +217,12 @@ https://github-feishu-bot.your-subdomain.workers.dev
 
 ## Managing Secrets
 
-### Setting Secrets
+Repository webhook secrets are stored in your repository configuration JSON (`secret` field per repository), not in a global Worker secret.
+
+If you use env-based configuration, store the full JSON config in `REPOSITORIES_CONFIG`:
 
 ```bash
-# Set webhook secret
-wrangler secret put GITHUB_WEBHOOK_SECRET
-
-# Set other secrets if needed
-wrangler secret put FEISHU_APP_SECRET
+wrangler secret put REPOSITORIES_CONFIG
 ```
 
 ### Listing Secrets
@@ -243,17 +234,17 @@ wrangler secret list
 ### Deleting Secrets
 
 ```bash
-wrangler secret delete GITHUB_WEBHOOK_SECRET
+wrangler secret delete REPOSITORIES_CONFIG
 ```
 
 ### Environment-Specific Secrets
 
 ```bash
 # Development
-wrangler secret put GITHUB_WEBHOOK_SECRET --env development
+wrangler secret put REPOSITORIES_CONFIG --env development
 
 # Production
-wrangler secret put GITHUB_WEBHOOK_SECRET --env production
+wrangler secret put REPOSITORIES_CONFIG --env production
 ```
 
 ## Updating Configuration
