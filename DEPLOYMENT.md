@@ -62,7 +62,10 @@ Create or edit `config/repositories.json`:
       "owner": "your-org",
       "repo": "your-repo",
       "events": ["pull_request"],
-      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/...",
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-a",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-b"
+      ],
       "secret": "your-github-webhook-secret",
       "mentions": [],
       "settings": {
@@ -80,6 +83,8 @@ Create or edit `config/repositories.json`:
   }
 }
 ```
+
+`feishu_webhook` remains supported if you only need one target group.
 
 ## Deployment Methods
 

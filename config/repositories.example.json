@@ -4,7 +4,10 @@
       "owner": "your-org",
       "repo": "your-repo",
       "events": ["pull_request", "star"],
-      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token",
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token-1",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/your-webhook-token-2"
+      ],
       "secret": "your-github-webhook-secret",
       "mentions": [],
       "settings": {

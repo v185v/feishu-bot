@@ -14,12 +14,21 @@ const DEFAULT_GLOBAL_SETTINGS = {
 /**
  * Required fields for repository configuration
  */
-const REQUIRED_REPO_FIELDS = ['owner', 'repo', 'events', 'feishu_webhook', 'secret'];
+const REQUIRED_REPO_FIELDS = ['owner', 'repo', 'events', 'secret'];
 
 /**
  * Valid event types
  */
 const VALID_EVENT_TYPES = ['pull_request', 'issues', 'star', 'push', 'release'];
+
+/**
+ * Validate Feishu webhook URL format
+ * @param {unknown} url - URL value to validate
+ * @returns {boolean} True if URL looks valid
+ */
+function isValidWebhookUrl(url) {
+  return typeof url === 'string' && url.startsWith('http');
+}
 
 /**
  * Supported bundled file configurations
@@ -258,11 +267,36 @@ export class ConfigManager {
       }
     }
 
-    // Validate feishu_webhook URL
-    if (typeof repo.feishu_webhook !== 'string' || !repo.feishu_webhook.startsWith('http')) {
+    // Validate webhook configuration
+    const hasSingleWebhook = repo.feishu_webhook !== undefined;
+    const hasMultipleWebhooks = repo.feishu_webhooks !== undefined;
+
+    if (!hasSingleWebhook && !hasMultipleWebhooks) {
+      throw new ConfigurationError(
+        `Repository at index ${index}: either "feishu_webhook" or "feishu_webhooks" must be provided`
+      );
+    }
+
+    if (hasSingleWebhook && !isValidWebhookUrl(repo.feishu_webhook)) {
       throw new ConfigurationError(
         `Repository at index ${index}: "feishu_webhook" must be a valid URL`
       );
+    }
+
+    if (hasMultipleWebhooks) {
+      if (!Array.isArray(repo.feishu_webhooks) || repo.feishu_webhooks.length === 0) {
+        throw new ConfigurationError(
+          `Repository at index ${index}: "feishu_webhooks" must be a non-empty array`
+        );
+      }
+
+      repo.feishu_webhooks.forEach((webhook, webhookIndex) => {
+        if (!isValidWebhookUrl(webhook)) {
+          throw new ConfigurationError(
+            `Repository at index ${index}: "feishu_webhooks[${webhookIndex}]" must be a valid URL`
+          );
+        }
+      });
     }
 
     // Validate secret

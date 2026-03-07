@@ -21,7 +21,7 @@ A Cloudflare Workers-based bot that monitors GitHub repository events and sends 
 - A Cloudflare account
 - Wrangler CLI installed (`npm install -g wrangler`)
 - GitHub repository with admin access
-- Feishu bot webhook URL
+- One or more Feishu bot webhook URLs
 
 ### Installation
 
@@ -50,7 +50,10 @@ cp .env.example .env
       "owner": "your-org",
       "repo": "your-repo",
       "events": ["pull_request"],
-      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/...",
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-a",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-b"
+      ],
       "secret": "your-github-webhook-secret",
       "mentions": [],
       "settings": {
@@ -68,6 +71,9 @@ cp .env.example .env
   }
 }
 ```
+
+
+`feishu_webhook` (single URL) is still supported for backward compatibility.
 
 ### Development
 
@@ -113,7 +119,7 @@ wrangler secret put REPOSITORIES_CONFIG
 ```
 
 4. Configure GitHub webhook:
-   - Go to your repository settings → Webhooks → Add webhook
+   - Go to your repository settings -> Webhooks -> Add webhook
    - Payload URL: `https://your-worker.workers.dev/webhook`
    - Content type: `application/json`
    - Secret: Your webhook secret
@@ -158,8 +164,11 @@ Future event support planned:
       "owner": "v185v",
       "repo": "feishu-bot",
       "events": ["pull_request", "issues", "star"],
-      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/你的hook",
-      "secret": "你的github-webhook-secret-自己爱填啥填啥",
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-a",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-b"
+      ],
+      "secret": "your-github-webhook-secret",
       "mentions": ["ou_xxx", "ou_yyy"],
       "settings": {
         "notify_on_pr_open": true,

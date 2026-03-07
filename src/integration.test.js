@@ -116,6 +116,64 @@ describe('Integration Tests - End-to-End Webhook Processing', () => {
       expect(feishuPayload.card.elements).toBeDefined();
     });
 
+    it('should send a single event to multiple Feishu webhooks', async () => {
+      const config = JSON.parse(mockEnv.REPOSITORIES_CONFIG);
+      delete config.repositories[0].feishu_webhook;
+      config.repositories[0].feishu_webhooks = [
+        'https://open.feishu.cn/webhook/team-a',
+        'https://open.feishu.cn/webhook/team-b',
+      ];
+      mockEnv.REPOSITORIES_CONFIG = JSON.stringify(config);
+
+      const prEvent = {
+        action: 'opened',
+        pull_request: {
+          number: 45,
+          title: 'Fanout notification',
+          body: 'Test multiple webhooks',
+          user: { login: 'developer-fanout' },
+          html_url: 'https://github.com/test-owner/test-repo/pull/45',
+          created_at: '2024-01-15T10:30:00Z',
+          merged: false,
+          draft: false,
+          requested_reviewers: [],
+        },
+        repository: {
+          name: 'test-repo',
+          owner: { login: 'test-owner' },
+          html_url: 'https://github.com/test-owner/test-repo',
+        },
+        sender: { login: 'developer-fanout' },
+      };
+
+      const body = JSON.stringify(prEvent);
+      const signature = await computeHmacSha256(body, 'test-secret-123');
+
+      const request = new Request('https://example.com/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-GitHub-Event': 'pull_request',
+          'X-Hub-Signature-256': `sha256=${signature}`,
+        },
+        body,
+      });
+
+      const response = await handleRequest(request, mockEnv, {});
+
+      expect(response.status).toBe(HTTP_STATUS.OK);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+
+      const calledWebhookUrls = mockFetch.mock.calls
+        .map(([url]) => url)
+        .sort();
+
+      expect(calledWebhookUrls).toEqual([
+        'https://open.feishu.cn/webhook/team-a',
+        'https://open.feishu.cn/webhook/team-b',
+      ]);
+    });
+
     it('should process PR merged webhook correctly', async () => {
       const prEvent = {
         action: 'closed',

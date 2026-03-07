@@ -47,6 +47,34 @@ describe('ConfigManager', () => {
       expect(config.repositories[0].owner).toBe('test-owner');
     });
 
+    it('should load valid configuration with feishu_webhooks array', async () => {
+      const validConfig = {
+        repositories: [
+          {
+            owner: 'test-owner',
+            repo: 'test-repo',
+            events: ['pull_request'],
+            feishu_webhooks: [
+              'https://open.feishu.cn/webhook/test-1',
+              'https://open.feishu.cn/webhook/test-2',
+            ],
+            secret: 'test-secret',
+          },
+        ],
+      };
+
+      const env = {
+        CONFIG_SOURCE: 'env',
+        REPOSITORIES_CONFIG: JSON.stringify(validConfig),
+      };
+
+      const config = await configManager.loadConfig(env);
+
+      expect(config).toBeDefined();
+      expect(config.repositories).toHaveLength(1);
+      expect(config.repositories[0].feishu_webhooks).toHaveLength(2);
+    });
+
     it('should default to bundled file configuration when CONFIG_SOURCE is not set', async () => {
       const env = {};
 
@@ -210,7 +238,7 @@ describe('ConfigManager', () => {
         repositories: [
           {
             owner: 'test-owner',
-            // Missing repo, events, feishu_webhook, secret
+            // Missing repo, events, secret
           },
         ],
       };
@@ -268,6 +296,77 @@ describe('ConfigManager', () => {
 
       await expect(configManager.loadConfig(env)).rejects.toThrow(
         'must be a valid URL'
+      );
+    });
+
+    it('should reject repository missing both feishu_webhook and feishu_webhooks', async () => {
+      const invalidConfig = {
+        repositories: [
+          {
+            owner: 'test-owner',
+            repo: 'test-repo',
+            events: ['pull_request'],
+            secret: 'test-secret',
+          },
+        ],
+      };
+
+      const env = {
+        CONFIG_SOURCE: 'env',
+        REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
+      };
+
+      await expect(configManager.loadConfig(env)).rejects.toThrow(
+        'either "feishu_webhook" or "feishu_webhooks" must be provided'
+      );
+    });
+
+    it('should reject empty feishu_webhooks array', async () => {
+      const invalidConfig = {
+        repositories: [
+          {
+            owner: 'test-owner',
+            repo: 'test-repo',
+            events: ['pull_request'],
+            feishu_webhooks: [],
+            secret: 'test-secret',
+          },
+        ],
+      };
+
+      const env = {
+        CONFIG_SOURCE: 'env',
+        REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
+      };
+
+      await expect(configManager.loadConfig(env)).rejects.toThrow(
+        '"feishu_webhooks" must be a non-empty array'
+      );
+    });
+
+    it('should reject invalid URL in feishu_webhooks array', async () => {
+      const invalidConfig = {
+        repositories: [
+          {
+            owner: 'test-owner',
+            repo: 'test-repo',
+            events: ['pull_request'],
+            feishu_webhooks: [
+              'https://open.feishu.cn/webhook/test',
+              'not-a-url',
+            ],
+            secret: 'test-secret',
+          },
+        ],
+      };
+
+      const env = {
+        CONFIG_SOURCE: 'env',
+        REPOSITORIES_CONFIG: JSON.stringify(invalidConfig),
+      };
+
+      await expect(configManager.loadConfig(env)).rejects.toThrow(
+        '"feishu_webhooks[1]" must be a valid URL'
       );
     });
   });

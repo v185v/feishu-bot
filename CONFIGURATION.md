@@ -67,7 +67,10 @@ Optional KV variable:
       "owner": "your-org",
       "repo": "your-repo",
       "events": ["pull_request"],
-      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/your-token",
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-a",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-b"
+      ],
       "secret": "your-github-webhook-secret",
       "mentions": ["ou_xxx", "oc_xxx"],
       "settings": {
@@ -97,15 +100,18 @@ Each repository in the `repositories` array supports the following fields:
 | `owner` | string | GitHub organization or user name | `"facebook"` |
 | `repo` | string | Repository name | `"react"` |
 | `events` | string[] | List of GitHub event types to monitor | `["pull_request"]` |
-| `feishu_webhook` | string | Feishu bot webhook URL | `"https://open.feishu.cn/..."` |
 | `secret` | string | GitHub webhook secret for signature verification | `"your-secret"` |
 
 ### Optional Fields
 
 | Field | Type | Description | Default | Example |
 |-------|------|-------------|---------|---------|
+| `feishu_webhook` | string | Legacy single Feishu webhook URL (supported for backward compatibility) | - | `"https://open.feishu.cn/..."` |
+| `feishu_webhooks` | string[] | Multiple Feishu webhook URLs (fanout to multiple groups) | - | `["https://open.feishu.cn/...", "https://open.feishu.cn/..."]` |
 | `mentions` | string[] | Feishu user/group IDs to mention in notifications | `[]` | `["ou_xxx", "oc_xxx"]` |
 | `settings` | object | Event-specific notification settings | See below | See below |
+
+At least one webhook field must be configured for each repository: `feishu_webhook` or `feishu_webhooks`.
 
 ### Settings Object
 
@@ -177,6 +183,7 @@ The bot validates configuration on startup and will fail with descriptive errors
 - Required fields are missing
 - JSON syntax is invalid
 - Field types are incorrect
+- Neither `feishu_webhook` nor `feishu_webhooks` is configured
 - URLs are malformed
 - Event types are unsupported
 
@@ -216,7 +223,10 @@ You can monitor multiple repositories with different settings:
       "owner": "org1",
       "repo": "frontend",
       "events": ["pull_request"],
-      "feishu_webhook": "https://open.feishu.cn/hook/frontend-team",
+      "feishu_webhooks": [
+        "https://open.feishu.cn/hook/frontend-team",
+        "https://open.feishu.cn/hook/frontend-managers"
+      ],
       "secret": "frontend-secret",
       "settings": {
         "notify_on_pr_open": true,
