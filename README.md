@@ -48,19 +48,59 @@ cp .env.example .env
   "repositories": [
     {
       "owner": "your-org",
-      "repo": "your-repo",
-      "events": ["pull_request"],
+      "repo": "frontend-app",
+      "events": ["pull_request", "issues", "star"],
       "feishu_webhooks": [
-        "https://open.feishu.cn/open-apis/bot/v2/hook/team-a",
-        "https://open.feishu.cn/open-apis/bot/v2/hook/team-b"
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-frontend",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-frontend-managers"
       ],
-      "secret": "your-github-webhook-secret",
-      "mentions": [],
+      "secret": "frontend-github-webhook-secret",
+      "mentions": ["ou_frontend_lead", "oc_frontend_group"],
       "settings": {
         "notify_on_pr_open": true,
         "notify_on_pr_merge": true,
         "notify_on_pr_close": false,
-        "notify_on_pr_review": true
+        "notify_on_pr_review": true,
+        "notify_on_issue_open": true,
+        "notify_on_issue_close": true,
+        "notify_on_issue_reopen": true,
+        "notify_on_issue_assign": false,
+        "notify_on_issue_label": false,
+        "notify_on_star": true
+      }
+    },
+    {
+      "owner": "your-org",
+      "repo": "backend-service",
+      "events": ["pull_request", "issues"],
+      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/team-backend",
+      "secret": "backend-github-webhook-secret",
+      "mentions": ["ou_backend_lead"],
+      "settings": {
+        "notify_on_pr_open": true,
+        "notify_on_pr_merge": true,
+        "notify_on_pr_close": true,
+        "notify_on_pr_review": true,
+        "notify_on_issue_open": true,
+        "notify_on_issue_close": true,
+        "notify_on_issue_reopen": true,
+        "notify_on_issue_assign": true,
+        "notify_on_issue_label": true,
+        "notify_on_star": false
+      }
+    },
+    {
+      "owner": "your-org",
+      "repo": "mobile-client",
+      "events": ["star"],
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-mobile",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-product"
+      ],
+      "secret": "mobile-github-webhook-secret",
+      "mentions": [],
+      "settings": {
+        "notify_on_star": true
       }
     }
   ],
@@ -156,20 +196,20 @@ Future event support planned:
 - Releases
 - Commits
 
-## Eaxmple repositories
+## Example repositories
 ```
 {
   "repositories": [
     {
-      "owner": "v185v",
-      "repo": "feishu-bot",
+      "owner": "your-org",
+      "repo": "frontend-app",
       "events": ["pull_request", "issues", "star"],
       "feishu_webhooks": [
-        "https://open.feishu.cn/open-apis/bot/v2/hook/team-a",
-        "https://open.feishu.cn/open-apis/bot/v2/hook/team-b"
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-frontend",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-frontend-managers"
       ],
-      "secret": "your-github-webhook-secret",
-      "mentions": ["ou_xxx", "ou_yyy"],
+      "secret": "frontend-github-webhook-secret",
+      "mentions": ["ou_frontend_lead", "oc_frontend_group"],
       "settings": {
         "notify_on_pr_open": true,
         "notify_on_pr_merge": true,
@@ -183,6 +223,40 @@ Future event support planned:
         "notify_on_issue_reopen": true,
         "notify_on_issue_assign": false,
         "notify_on_issue_label": false
+      }
+    },
+    {
+      "owner": "your-org",
+      "repo": "backend-service",
+      "events": ["pull_request", "issues"],
+      "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/team-backend",
+      "secret": "backend-github-webhook-secret",
+      "mentions": ["ou_backend_lead"],
+      "settings": {
+        "notify_on_pr_open": true,
+        "notify_on_pr_merge": true,
+        "notify_on_pr_close": true,
+        "notify_on_pr_review": true,
+        "notify_on_issue_open": true,
+        "notify_on_issue_close": true,
+        "notify_on_issue_reopen": true,
+        "notify_on_issue_assign": true,
+        "notify_on_issue_label": true,
+        "notify_on_star": false
+      }
+    },
+    {
+      "owner": "your-org",
+      "repo": "mobile-client",
+      "events": ["star"],
+      "feishu_webhooks": [
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-mobile",
+        "https://open.feishu.cn/open-apis/bot/v2/hook/team-product"
+      ],
+      "secret": "mobile-github-webhook-secret",
+      "mentions": [],
+      "settings": {
+        "notify_on_star": true
       }
     }
   ],
