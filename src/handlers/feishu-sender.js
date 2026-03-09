@@ -523,8 +523,31 @@ function formatEventType(eventType) {
 function formatTimestamp(timestamp) {
   try {
     const date = new Date(timestamp);
-    // Format: YYYY-MM-DD HH:mm:ss
-    return date.toISOString().replace('T', ' ').substring(0, 19);
+    if (Number.isNaN(date.getTime())) {
+      return timestamp || 'Unknown';
+    }
+
+    const formatter = new Intl.DateTimeFormat('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+
+    const parts = formatter.formatToParts(date);
+    const values = {};
+    for (const part of parts) {
+      if (part.type !== 'literal') {
+        values[part.type] = part.value;
+      }
+    }
+
+    // Format: YYYY-MM-DD HH:mm:ss (Beijing time)
+    return `${values.year}-${values.month}-${values.day} ${values.hour}:${values.minute}:${values.second}`;
   } catch {
     return timestamp || 'Unknown';
   }

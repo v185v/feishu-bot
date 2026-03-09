@@ -188,11 +188,11 @@ describe('Feishu Sender', () => {
   });
 
   describe('formatTimestamp', () => {
-    it('should format ISO timestamp correctly', () => {
+    it('should format ISO timestamp in Beijing time', () => {
       const timestamp = '2024-01-15T10:30:45Z';
       const formatted = formatTimestamp(timestamp);
 
-      expect(formatted).toBe('2024-01-15 10:30:45');
+      expect(formatted).toBe('2024-01-15 18:30:45');
     });
 
     it('should handle invalid timestamp', () => {
@@ -202,8 +202,8 @@ describe('Feishu Sender', () => {
 
     it('should handle null timestamp', () => {
       const formatted = formatTimestamp(null);
-      // null gets converted to epoch time by Date constructor
-      expect(formatted).toBe('1970-01-01 00:00:00');
+      // null gets converted to epoch time by Date constructor (displayed in Beijing time)
+      expect(formatted).toBe('1970-01-01 08:00:00');
     });
   });
 
